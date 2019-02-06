@@ -4,7 +4,7 @@ require('dotenv').config();
 // Define configuration options
 const opts = {
   identity: {
-    username: 'aquasniper1',
+    username: process.env.USER_NAME,
     password: process.env.PASSWORD
   },
   channels: [

@@ -1,22 +1,24 @@
 const tmi = require('tmi.js');
+require('dotenv').config();
 
 // Define configuration options
 const opts = {
   identity: {
-    username: "aquasniper1",
-    password: "oauth:wtpujk4qyccrecjnk84doesnb9hdgz"
+    username: 'aquasniper1',
+    password: process.env.PASSWORD
   },
   channels: [
-    "aquasniper1"
+    'aquasniper1',
+    //'tsm_theoddone'
   ]
 };
 
 const allowedUser = [
-  "aquasniper1"
+  'aquasniper1'
 ];
 
 const chatCommand = 'POGGERS';
-const botDelayInMS = 400;
+const botDelayInMS = 500;
 
 // Create a client with our options
 const client = new tmi.client(opts);
@@ -30,7 +32,6 @@ client.connect();
 // Called every time a message comes in
 async function onChatHandler(channel, userstate, msg, self) {
   if (self) { return; } // Ignore messages from the bot
-  console.log(userstate);
 
   // Remove whitespace from chat message
   const commandName = msg.trim();

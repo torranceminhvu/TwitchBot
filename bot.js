@@ -16,10 +16,11 @@ const opts = {
 
 const CONST = {
   allowedUser: ['aquasniper1'],
-  pyramidBlockList: ['hikayami', 'aquasniper1'],
+  pyramidBlockList: ['hikayami', 'aquasniper1', 'silverdragon504'],
   chatCommand: 'POGGERS',
-  botDelayInMS: 500,
+  botDelayInMS: 200,
   limiter: new RateLimiter(1, 2000),
+  pyramidBlockLimiter: new RateLimiter(3, 3500),
   sacList: [],
   firstLayer: '',
   secondLayer: ''
@@ -43,7 +44,7 @@ function onChatHandler(channel, userstate, msg, self) {
   tryUpdateSacList(userstate.username);
 
   blockPyramid(channel, userstate, msg);
-  killAMeme(channel, userstate.username, msg);
+  killAMeme(channel, userstate.username, msg.toLowerCase());
   //buildPyramid(channel, userstate, msg);
 }
 
@@ -68,17 +69,18 @@ function tryUpdateSacList(username) {
 }
 
 function blockPyramid(channel, userstate, msg) {
-  // if (!CONST.pyramidBlockList.includes(userstate.username) || !Math.trunc(CONST.limiter.getTokensRemaining())) {
-  //   return;
-  // }
-  if (!Math.trunc(CONST.limiter.getTokensRemaining())) {
+  let botMessage = `@${userstate.username} a chatter is sacced for every pyramid you fail monkaGun pepeGun @${CONST.sacList[Math.floor(Math.random()*CONST.sacList.length)]} :gun: oddoneVillain`;
+  if (shouldBlockPyramid(msg) && CONST.pyramidBlockList.includes(userstate.username) && Math.trunc(CONST.limiter.getTokensRemaining())) {
+    CONST.limiter.tryRemoveTokens(1);
+    client.say(channel, botMessage);
+    CONST.pyramidBlockLimiter = new RateLimiter(3, 2000);
     return;
   }
 
-  if (CONST.pyramidBlockList.includes(userstate.username) && Math.trunc(CONST.limiter.getTokensRemaining()) && shouldBlockPyramid(msg)) {
-    let botMessage = `@${userstate.username} a chatter is sacced for every pyramid you fail monkaGun pepeGun @${CONST.sacList[Math.floor(Math.random()*CONST.sacList.length)]} :gun: oddoneVillain`;
-    CONST.limiter.tryRemoveTokens(1);
+  // backup blocker that will essentially just rate limit 3 messages every 2 seconds and flag it if there is more
+  if (CONST.pyramidBlockList.includes(userstate.username) && !CONST.pyramidBlockLimiter.tryRemoveTokens(1)) {
     client.say(channel, botMessage);
+    CONST.pyramidBlockLimiter = new RateLimiter(3, 2000);
   }
 }
 
@@ -145,7 +147,7 @@ function killAMeme(channel, username, message) {
 }
 
 function welcome(channel, username, months) {
-  let botMessage = `oddoneWel back ${username}! Here are (x${months}) oddonePat AYAYA AYAYA`;
+  let botMessage = `oddoneWel back @${username} ! Here are (x${months}) oddonePat AYAYA AYAYA`;
   client.say(channel, botMessage);
   console.log(botMessage);
 }

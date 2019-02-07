@@ -15,11 +15,14 @@ const opts = {
 };
 
 const CONST = {
-  allowedUser: 'aquasniper1',
+  allowedUser: ['aquasniper1'],
+  pyramidBlockList: ['hikayami', 'aquasniper1'],
   chatCommand: 'POGGERS',
   botDelayInMS: 500,
   limiter: new RateLimiter(1, 2000),
-  sacList: []
+  sacList: [],
+  firstLayer: '',
+  secondLayer: ''
 };
 
 // Create a client with our options
@@ -37,10 +40,9 @@ client.connect();
 function onChatHandler(channel, userstate, msg, self) {
   if (self) { return; } // Ignore messages from the bot
 
-  if (!CONST.sacList.includes(userstate.username)) {
-    CONST.sacList.push(userstate.username);
-    console.log(CONST.sacList.length);
-  }
+  tryUpdateSacList(userstate.username);
+
+  blockPyramid(channel, userstate, msg);
   killAMeme(channel, userstate.username, msg);
   //buildPyramid(channel, userstate, msg);
 }
@@ -57,6 +59,57 @@ function onSubHandler(channel, username, method, message, userstate) {
 // Called every time the bot connects to Twitch chat
 function onConnectedHandler(addr, port) {
   console.log(`* Connected to ${addr}:${port}`);
+}
+
+function tryUpdateSacList(username) {
+  if (!CONST.sacList.includes(username)) {
+    CONST.sacList.push(username);
+  }
+}
+
+function blockPyramid(channel, userstate, msg) {
+  // if (!CONST.pyramidBlockList.includes(userstate.username) || !Math.trunc(CONST.limiter.getTokensRemaining())) {
+  //   return;
+  // }
+  if (!Math.trunc(CONST.limiter.getTokensRemaining())) {
+    return;
+  }
+
+  if (CONST.pyramidBlockList.includes(userstate.username) && Math.trunc(CONST.limiter.getTokensRemaining()) && shouldBlockPyramid(msg)) {
+    let botMessage = `@${userstate.username} a chatter is sacced for every pyramid you fail monkaGun pepeGun @${CONST.sacList[Math.floor(Math.random()*CONST.sacList.length)]} :gun: oddoneVillain`;
+    CONST.limiter.tryRemoveTokens(1);
+    client.say(channel, botMessage);
+  }
+}
+
+function setFirstLayer(msg) {
+  CONST.firstLayer = msg;
+  CONST.secondLayer = '';
+}
+
+function setSecondLayer(msg) {
+  CONST.secondLayer = msg;
+}
+
+function shouldBlockPyramid(msg) {
+  let firstEmoteToCheck = msg.split(' ')[0];
+  let numOfEmoteOccurences = msg.split(firstEmoteToCheck).length - 1;
+
+  if (numOfEmoteOccurences === 1) {
+    setFirstLayer(firstEmoteToCheck);
+  } else if (numOfEmoteOccurences === 2) {
+    setSecondLayer(firstEmoteToCheck);
+  } else if (numOfEmoteOccurences === 3) {
+    if (CONST.secondLayer === firstEmoteToCheck && CONST.firstLayer === firstEmoteToCheck) {
+      setFirstLayer('');
+      return true;
+    }
+    setFirstLayer('');
+  } else {
+    setFirstLayer('');
+  }
+
+  return false;
 }
 
 async function buildPyramid(channel, userstate, msg) {

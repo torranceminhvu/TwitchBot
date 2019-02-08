@@ -1,4 +1,6 @@
 const tmi = require('tmi.js');
+const jokes = require('./jokes');
+const Constants = require('./const').Constants;
 const RateLimiter = require('limiter').RateLimiter;
 require('dotenv').config();
 
@@ -12,18 +14,6 @@ const opts = {
     'aquasniper1',
     'tsm_theoddone'
   ]
-};
-
-const CONST = {
-  allowedUser: ['aquasniper1'],
-  pyramidBlockList: ['hikayami', 'aquasniper1', 'silverdragon504'],
-  chatCommand: 'POGGERS',
-  botDelayInMS: 200,
-  limiter: new RateLimiter(1, 2000),
-  pyramidBlockLimiter: new RateLimiter(3, 3500),
-  sacList: [],
-  firstLayer: '',
-  secondLayer: ''
 };
 
 // Create a client with our options
@@ -43,6 +33,7 @@ function onChatHandler(channel, userstate, msg, self) {
 
   tryUpdateSacList(userstate.username);
 
+  sendRandomJoke(channel, userstate, msg);
   blockPyramid(channel, userstate, msg);
   killAMeme(channel, userstate.username, msg.toLowerCase());
   //buildPyramid(channel, userstate, msg);
@@ -62,35 +53,44 @@ function onConnectedHandler(addr, port) {
   console.log(`* Connected to ${addr}:${port}`);
 }
 
-function tryUpdateSacList(username) {
-  if (!CONST.sacList.includes(username)) {
-    CONST.sacList.push(username);
-  }
+function sendRandomJoke(channel, userstate, msg) {
+  let commandName = msg.trim();
+  if (commandName === Constants.jokesCommand && hasTokensRemaining(Constants.jokesLimiter))
+    jokes.getRandomJoke()
+    .then(function (response) {
+      Constants.jokesLimiter.tryRemoveTokens(1);
+      let botMessage = `@${userstate.username} ${response.data} LUL`;
+      client.say(channel, botMessage);
+      console.log(botMessage);
+    })
+    .catch(function (error) {
+      console.log('Error getting random joke\n.', error);
+    });
 }
 
 function blockPyramid(channel, userstate, msg) {
-  let botMessage = `@${userstate.username} a chatter is sacced for every pyramid you fail monkaGun pepeGun @${CONST.sacList[Math.floor(Math.random()*CONST.sacList.length)]} :gun: oddoneVillain`;
-  if (shouldBlockPyramid(msg) && CONST.pyramidBlockList.includes(userstate.username) && Math.trunc(CONST.limiter.getTokensRemaining())) {
-    CONST.limiter.tryRemoveTokens(1);
+  let botMessage = `@${userstate.username} a chatter is sacced for every pyramid you fail monkaGun pepeGun @${Constants.sacList[Math.floor(Math.random()*Constants.sacList.length)]} :gun: oddoneVillain`;
+  if (shouldBlockPyramid(msg) && Constants.pyramidBlockList.includes(userstate.username) && hasTokensRemaining(Constants.limiter)) {
+    Constants.limiter.tryRemoveTokens(1);
     client.say(channel, botMessage);
-    CONST.pyramidBlockLimiter = new RateLimiter(3, 2000);
+    Constants.pyramidBlockLimiter = new RateLimiter(3, 2000);
     return;
   }
 
-  // backup blocker that will essentially just rate limit 3 messages every 2 seconds and flag it if there is more
-  if (CONST.pyramidBlockList.includes(userstate.username) && !CONST.pyramidBlockLimiter.tryRemoveTokens(1)) {
+  // backup blocker that will essentially just rate limit the user message rate
+  if (Constants.pyramidBlockList.includes(userstate.username) && !Constants.pyramidBlockLimiter.tryRemoveTokens(1)) {
     client.say(channel, botMessage);
-    CONST.pyramidBlockLimiter = new RateLimiter(3, 2000);
+    Constants.pyramidBlockLimiter = new RateLimiter(3, 2000);
   }
 }
 
 function setFirstLayer(msg) {
-  CONST.firstLayer = msg;
-  CONST.secondLayer = '';
+  Constants.firstLayer = msg;
+  Constants.secondLayer = '';
 }
 
 function setSecondLayer(msg) {
-  CONST.secondLayer = msg;
+  Constants.secondLayer = msg;
 }
 
 function shouldBlockPyramid(msg) {
@@ -102,7 +102,7 @@ function shouldBlockPyramid(msg) {
   } else if (numOfEmoteOccurences === 2) {
     setSecondLayer(firstEmoteToCheck);
   } else if (numOfEmoteOccurences === 3) {
-    if (CONST.secondLayer === firstEmoteToCheck && CONST.firstLayer === firstEmoteToCheck) {
+    if (Constants.secondLayer === firstEmoteToCheck && Constants.firstLayer === firstEmoteToCheck) {
       setFirstLayer('');
       return true;
     }
@@ -125,10 +125,10 @@ async function buildPyramid(channel, userstate, msg) {
   const commandName = msg.trim();
 
   // If the command is known, let's execute it
-  if (commandName === CONST.chatCommand && CONST.allowedUser.includes(userstate.username)) {
+  if (commandName === Constants.chatCommand && Constants.allowedUser.includes(userstate.username)) {
     for (let botMessage of botMessages) {
       client.say(channel, `${botMessage}`);
-      await sleep(CONST.botDelayInMS);
+      await sleep(Constants.botDelayInMS);
     };
     console.log(`* Executed ${commandName} command`);
   } else {
@@ -137,12 +137,11 @@ async function buildPyramid(channel, userstate, msg) {
 }
 
 function killAMeme(channel, username, message) {
-  if (message.includes('staff') && message.includes('meme') && Math.trunc(CONST.limiter.getTokensRemaining())) {
-    CONST.limiter.removeTokens(1, function (err, remainingRequests) {
-      let botMessage = `@${username} a meme dies for every staff you rat out monkaGun pepeGun \\(@${CONST.sacList[Math.floor(Math.random()*CONST.sacList.length)]})/ :gun: oddoneVillain`;
-      client.say(channel, botMessage);
-      console.log(botMessage);
-    });
+  if (message.includes('staff') && message.includes('meme') && hasTokensRemaining(Constants.killAMemeLimiter)) {
+    Constants.killAMemeLimiter.tryRemoveTokens(1);
+    let botMessage = `@${username} a meme dies for every staff you rat out monkaGun pepeGun \\(@${Constants.sacList[Math.floor(Math.random()*Constants.sacList.length)]})/ :gun: oddoneVillain`;
+    client.say(channel, botMessage);
+    console.log(botMessage);
   }
 }
 
@@ -152,8 +151,18 @@ function welcome(channel, username, months) {
   console.log(botMessage);
 }
 
+function tryUpdateSacList(username) {
+  if (!Constants.sacList.includes(username)) {
+    Constants.sacList.push(username);
+  }
+}
+
 function sleep(ms) {
   return new Promise(resolve => {
     setTimeout(resolve, ms);
   });
+}
+
+function hasTokensRemaining(rateLimiter) {
+  return Math.trunc(rateLimiter.getTokensRemaining()) ? true : false;
 }

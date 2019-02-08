@@ -55,22 +55,23 @@ function onConnectedHandler(addr, port) {
 
 function sendRandomJoke(channel, userstate, msg) {
   let commandName = msg.trim();
-  if (commandName === Constants.jokesCommand && hasTokensRemaining(Constants.jokesLimiter))
+  if (commandName === Constants.jokesCommand && hasTokensRemaining(Constants.jokesLimiter)) {
+    Constants.jokesLimiter.tryRemoveTokens(1);
     jokes.getRandomJoke()
-    .then(function (response) {
-      Constants.jokesLimiter.tryRemoveTokens(1);
-      let botMessage = `@${userstate.username} ${response.data} LUL`;
-      client.say(channel, botMessage);
-      console.log(botMessage);
-    })
-    .catch(function (error) {
-      console.log('Error getting random joke\n.', error);
-    });
+      .then(function (response) {
+        let botMessage = `@${userstate.username} ${response.data} LUL`;
+        client.say(channel, botMessage);
+        console.log(botMessage);
+      })
+      .catch(function (error) {
+        console.log('Error getting random joke\n.', error);
+      });
+  }
 }
 
 function blockPyramid(channel, userstate, msg) {
   let botMessage = `@${userstate.username} a chatter is sacced for every pyramid you fail monkaGun pepeGun @${Constants.sacList[Math.floor(Math.random()*Constants.sacList.length)]} :gun: oddoneVillain`;
-  if (shouldBlockPyramid(msg) && Constants.pyramidBlockList.includes(userstate.username) && hasTokensRemaining(Constants.limiter)) {
+  if (shouldBlockPyramid(msg) && /*Constants.pyramidBlockList.includes(userstate.username) &&*/ hasTokensRemaining(Constants.limiter)) {
     Constants.limiter.tryRemoveTokens(1);
     client.say(channel, botMessage);
     Constants.pyramidBlockLimiter = new RateLimiter(3, 2000);
@@ -78,10 +79,10 @@ function blockPyramid(channel, userstate, msg) {
   }
 
   // backup blocker that will essentially just rate limit the user message rate
-  if (Constants.pyramidBlockList.includes(userstate.username) && !Constants.pyramidBlockLimiter.tryRemoveTokens(1)) {
-    client.say(channel, botMessage);
-    Constants.pyramidBlockLimiter = new RateLimiter(3, 2000);
-  }
+  // if (Constants.pyramidBlockList.includes(userstate.username) && !Constants.pyramidBlockLimiter.tryRemoveTokens(1)) {
+  //   client.say(channel, botMessage);
+  //   Constants.pyramidBlockLimiter = new RateLimiter(3, 2000);
+  // }
 }
 
 function setFirstLayer(msg) {

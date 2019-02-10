@@ -34,8 +34,8 @@ function onChatHandler(channel, userstate, msg, self) {
   tryUpdateSacList(userstate.username);
 
   sendRandomJoke(channel, userstate, msg);
-  blockPyramid(channel, userstate, msg);
-  killAMeme(channel, userstate.username, msg.toLowerCase());
+  //blockPyramid(channel, userstate, msg);
+  //killAMeme(channel, userstate.username, msg.toLowerCase());
   //buildPyramid(channel, userstate, msg);
 }
 
@@ -52,6 +52,21 @@ function onSubHandler(channel, username, method, message, userstate) {
 function onConnectedHandler(addr, port) {
   console.log(`* Connected to ${addr}:${port}`);
 }
+
+// Randomly spit out a joke at an interval
+setInterval(function () {
+  jokes.getRandomJoke()
+    .then(function (response) {
+      let botMessage = `Random Timed Joke: ${response.data} LUL`;
+      client.say('tsm_theoddone', botMessage);
+      console.log(botMessage);
+    })
+    .catch(function (error) {
+      console.log('Error getting random joke\n.', error);
+    });
+}, 600000); // 10 min interval
+
+clearSacListOnInterval();
 
 function sendRandomJoke(channel, userstate, msg) {
   let commandName = msg.trim();
@@ -74,7 +89,8 @@ function blockPyramid(channel, userstate, msg) {
   if (shouldBlockPyramid(msg) && /*Constants.pyramidBlockList.includes(userstate.username) &&*/ hasTokensRemaining(Constants.limiter)) {
     Constants.limiter.tryRemoveTokens(1);
     client.say(channel, botMessage);
-    Constants.pyramidBlockLimiter = new RateLimiter(3, 2000);
+    console.log(`${userstate.username}'s pyramid was blocked`);
+    //Constants.pyramidBlockLimiter = new RateLimiter(3, 2000);
     return;
   }
 
@@ -117,10 +133,11 @@ function shouldBlockPyramid(msg) {
 
 async function buildPyramid(channel, userstate, msg) {
   let botMessages = [
-    'oddonePat oddonePat oddonePat oddonePat',
-    'oddonePat oddoneG oddoneBakana oddonePat',
-    'oddonePat oddoneLewd oddoneLOL oddonePat',
-    'oddonePat oddonePat oddonePat oddonePat'
+    'Oiktmot',
+    'Oiktmot Oiktmot',
+    'Oiktmot Oiktmot Oiktmot',
+    'Oiktmot Oiktmot',
+    'Oiktmot'
   ];
 
   const commandName = msg.trim();
@@ -138,7 +155,7 @@ async function buildPyramid(channel, userstate, msg) {
 }
 
 function killAMeme(channel, username, message) {
-  if (message.includes('staff') && message.includes('meme') && hasTokensRemaining(Constants.killAMemeLimiter)) {
+  if (message.includes('staff') /*&& message.includes('meme')*/ && hasTokensRemaining(Constants.killAMemeLimiter)) {
     Constants.killAMemeLimiter.tryRemoveTokens(1);
     let botMessage = `@${username} a meme dies for every staff you rat out monkaGun pepeGun \\(@${Constants.sacList[Math.floor(Math.random()*Constants.sacList.length)]})/ :gun: oddoneVillain`;
     client.say(channel, botMessage);
@@ -147,7 +164,7 @@ function killAMeme(channel, username, message) {
 }
 
 function welcome(channel, username, months) {
-  let botMessage = `oddoneWel back @${username} ! Here are (x${months}) oddonePat AYAYA AYAYA`;
+  let botMessage = `oddoneWel back @${username} ! Here are (x${months}) oddonePat oddonePat AYAYA AYAYA`;
   client.say(channel, botMessage);
   console.log(botMessage);
 }
@@ -156,6 +173,12 @@ function tryUpdateSacList(username) {
   if (!Constants.sacList.includes(username)) {
     Constants.sacList.push(username);
   }
+}
+
+function clearSacListOnInterval() {
+  setInterval(function () {
+    Constants.sacList.length = 0;
+  }, 600000); // 10 min interval
 }
 
 function sleep(ms) {

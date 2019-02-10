@@ -8,8 +8,8 @@ const Constants = {
   botDelayInMS: 200,
   limiter: new RateLimiter(1, 2000),
   pyramidBlockLimiter: new RateLimiter(3, 3500),
-  killAMemeLimiter: new RateLimiter(1, 10000),
-  jokesLimiter: new RateLimiter(1, 10000),
+  killAMemeLimiter: new RateLimiter(1, 60000),
+  jokesLimiter: new RateLimiter(1, 30000),
   sacList: [],
   firstLayer: '',
   secondLayer: ''

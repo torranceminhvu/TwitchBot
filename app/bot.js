@@ -1,5 +1,6 @@
 const tmi = require('tmi.js');
 const jokes = require('./jokes');
+const trivias = require('./trivias')
 const Constants = require('./const').Constants;
 const RateLimiter = require('limiter').RateLimiter;
 require('dotenv').config();
@@ -12,7 +13,7 @@ const opts = {
   },
   channels: [
     'aquasniper1',
-    'tsm_theoddone'
+    //'tsm_theoddone'
   ]
 };
 
@@ -21,8 +22,8 @@ const client = new tmi.client(opts);
 
 // Register our event handlers (defined below)
 client.on('chat', onChatHandler);
-client.on("resub", onReSubHandler);
-client.on("subscription", onSubHandler);
+client.on('resub', onReSubHandler);
+client.on('subscription', onSubHandler);
 client.on('connected', onConnectedHandler);
 
 // Connect to Twitch:
@@ -190,3 +191,25 @@ function sleep(ms) {
 function hasTokensRemaining(rateLimiter) {
   return Math.trunc(rateLimiter.getTokensRemaining()) ? true : false;
 }
+
+function startTrivia(channel) {
+  trivias.getRandomTrivia()
+    .then(async function (triviaObject) {
+      console.log(triviaObject);
+      client.say(channel, triviaObject.question);
+      await sleep(250);
+      for (let possible_answer of triviaObject.possible_answers) {
+        client.say(channel, possible_answer);
+        await sleep(250);
+      }
+
+      setTimeout(function () {
+        client.say(channel, triviaObject.answer);
+      }, 4000);
+    })
+    .catch(function (error) {
+      console.log('Error getting random trivia\n.', error);
+    });
+}
+
+startTrivia('aquasniper1');

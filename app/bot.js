@@ -40,7 +40,7 @@ function onChatHandler(channel, userstate, msg, self) {
   startTrivia(channel, msg);
   collectUserAnswersToTrivia(userstate.username, msg);
   blockPyramid(channel, userstate.username, msg);
-  killAMeme(channel, userstate.username, msg.toLowerCase());
+  //killAMeme(channel, userstate.username, msg.toLowerCase());
   //buildPyramid(channel, userstate.username, msg);
 }
 
@@ -73,7 +73,7 @@ function startRandomJokeOnInterval(channel) {
       .catch(function (error) {
         console.log('Error getting random joke\n.', error);
       });
-  }, 600000); // 10 min interval
+  }, 900000); // 15 min interval
 }
 
 function sendRandomJoke(channel, username, msg) {
@@ -195,7 +195,7 @@ function startTrivia(channel, msg) {
         // release fullAnswer after x amount of time
         setTimeout(function () {
           releaseCorrectAnswerCallback(channel, triviaObject.fullAnswer);
-        }, 10000);
+        }, 15000);
       })
       .catch(function (error) {
         console.log('Error getting random trivia\n.', error);
@@ -225,7 +225,7 @@ function releaseCorrectAnswerCallback(channel, fullAnswer) {
   Constants.triviaShouldCollectUserAnswers = false;
   Constants.triviaCorrectAnswerLetterChoice = '';
 
-  let atLeastOneCorrectMessage = `Congrats - ${Constants.triviaUserAnsweredCorrectList.join(' ')} AYAYA. ${fullAnswer}`;
+  let atLeastOneCorrectMessage = `Congrats - ${Constants.triviaUserAnsweredCorrectList.join(' ')} AYAYA . ${fullAnswer}`;
   let noCorrectMessage = `Oof, nobody was correct oddoneClown . ${Constants.triviaUserAnsweredCorrectList.join(' ')} ${fullAnswer}`;
   let correctAnswerMessage = Constants.triviaUserAnsweredCorrectList.length ? atLeastOneCorrectMessage : noCorrectMessage;
 

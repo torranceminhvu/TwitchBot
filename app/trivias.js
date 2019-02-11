@@ -13,10 +13,12 @@ function getRandomTrivia() {
 
 function buildTriviaObject(data) {
   let possible_answers = data.type == 'boolean' ? ['True', 'False'] : shuffleArray([...data.incorrect_answers, data.correct_answer]);
+  let answer = formatAnswer(data.correct_answer, possible_answers);
   return {
     question: `Question: ${decode(data.question)}`,
     possible_answers: formatPossibleAnswers(possible_answers),
-    answer: formatAnswer(data.correct_answer, possible_answers)
+    fullAnswer: answer.fullAnswer,
+    answerLetterChoice: answer.answerLetterChoice
   }
 }
 
@@ -39,7 +41,10 @@ function formatAnswer(answer, choices) {
   let charCode = 65; // Starts at char code A;
   for (let val of choices) {
     if (val.includes(answer)) {
-      return `Answer - ${decode(answer)} (${String.fromCharCode(charCode)})`;
+      return {
+        fullAnswer: `Answer - ${decode(answer)} (${String.fromCharCode(charCode)})`,
+        answerLetterChoice: String.fromCharCode(charCode)
+      }
     }
     charCode++;
   }

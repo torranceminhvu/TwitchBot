@@ -14,7 +14,7 @@ const opts = {
   },
   channels: [
     'aquasniper1',
-    'tsm_theoddone'
+    'stoner_minded'
   ]
 };
 
@@ -156,7 +156,7 @@ async function buildPyramid(channel, username, msg) {
 }
 
 function killAMeme(channel, username, msg) {
-  if (msg.includes('staff') /*&& msg.includes('meme')*/ && util.hasTokensRemaining(Constants.killAMemeLimiter)) {
+  if (msg.includes('staff') && msg.includes('meme') && util.hasTokensRemaining(Constants.killAMemeLimiter)) {
     Constants.killAMemeLimiter.tryRemoveTokens(1);
     let botMessage = `@${username} a meme dies for every staff you rat out monkaGun pepeGun \\(@${Constants.sacList[Math.floor(Math.random()*Constants.sacList.length)]})/ :gun: oddoneVillain`;
     client.say(channel, botMessage);
@@ -225,8 +225,8 @@ function releaseCorrectAnswerCallback(channel, fullAnswer) {
   Constants.triviaShouldCollectUserAnswers = false;
   Constants.triviaCorrectAnswerLetterChoice = '';
 
-  let atLeastOneCorrectMessage = `Congrats - ${Constants.triviaUserAnsweredCorrectList.join(' ')} AYAYA . ${fullAnswer}`;
-  let noCorrectMessage = `Oof, nobody was correct oddoneClown . ${Constants.triviaUserAnsweredCorrectList.join(' ')} ${fullAnswer}`;
+  let atLeastOneCorrectMessage = `Congrats - ${Constants.triviaUserAnsweredCorrectList.join(' ')} stonerPotato . ${fullAnswer}`;
+  let noCorrectMessage = `Oof, nobody was correct stonerREE . ${Constants.triviaUserAnsweredCorrectList.join(' ')} ${fullAnswer}`;
   let correctAnswerMessage = Constants.triviaUserAnsweredCorrectList.length ? atLeastOneCorrectMessage : noCorrectMessage;
 
   // empties list for next question

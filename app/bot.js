@@ -25,8 +25,9 @@ const client = new tmi.client(opts);
 client.on('chat', onChatHandler);
 client.on('resub', onReSubHandler);
 client.on('subscription', onSubHandler);
-client.on('connected', onConnectedHandler);
 client.on("subgift", onSubGiftHandler);
+client.on("submysterygift", onSubMysteryGiftHandler);
+client.on('connected', onConnectedHandler);
 
 // Connect to Twitch:
 client.connect();
@@ -59,6 +60,11 @@ function onSubHandler(channel, username, method, msg, userstate) {
 
 function onSubGiftHandler(channel, username, _streakMonths, recipient, methods, userstate) {
   let botMessage = `Thank you @${username} for gifting @${recipient} a sub!`;
+  sendCustomMessage(channel, botMessage);
+}
+
+function onSubMysteryGiftHandler(channel, username, numbOfSubs, methods, userstate) {
+  let botMessage = `Thank you @${username} for gifting @${numbOfSubs} subs to the channel!`;
   sendCustomMessage(channel, botMessage);
 }
 

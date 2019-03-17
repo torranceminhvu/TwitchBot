@@ -26,6 +26,7 @@ client.on('chat', onChatHandler);
 client.on('resub', onReSubHandler);
 client.on('subscription', onSubHandler);
 client.on('connected', onConnectedHandler);
+client.on("subgift", onSubGiftHandler);
 
 // Connect to Twitch:
 client.connect();
@@ -46,12 +47,20 @@ function onChatHandler(channel, userstate, msg, self) {
 
 function onReSubHandler(channel, username, _months, msg, userstate, methods) {
   let months = (userstate && 'msg-param-cumulative-months' in userstate && userstate['msg-param-cumulative-months']) || 1; // ensure at least 1
-  welcome(channel, username, months);
+  let botMessage = `oddoneWel back @${username} ! Here are (x${months}) oddonePat oddonePat AYAYA AYAYA`;
+  sendCustomMessage(channel, botMessage);
 };
 
 function onSubHandler(channel, username, method, msg, userstate) {
-  welcome(channel, username, 1);
+  let months = 1
+  let botMessage = `oddoneWel back @${username} ! Here are (x${months}) oddonePat oddonePat AYAYA AYAYA`;
+  sendCustomMessage(channel, botMessage);
 };
+
+function onSubGiftHandler(channel, username, _streakMonths, recipient, methods, userstate) {
+  let botMessage = `Thank you @${username} for gifting @${recipient} a sub!`;
+  sendCustomMessage(channel, botMessage);
+}
 
 // Called every time the bot connects to Twitch chat
 function onConnectedHandler(addr, port) {
@@ -67,8 +76,7 @@ function startRandomJokeOnInterval(channel) {
     jokes.getRandomJoke()
       .then(function (response) {
         let botMessage = `Random Timed Joke: ${response.data} LUL`;
-        client.say(channel, botMessage);
-        console.log(botMessage);
+        sendCustomMessage(channel, botMessage);
       })
       .catch(function (error) {
         console.log('Error getting random joke\n.', error);
@@ -83,8 +91,7 @@ function sendRandomJoke(channel, username, msg) {
     jokes.getRandomJoke()
       .then(function (response) {
         let botMessage = `@${username} ${response.data} LUL`;
-        client.say(channel, botMessage);
-        console.log(botMessage);
+        sendCustomMessage(channel, botMessage);
       })
       .catch(function (error) {
         console.log('Error getting random joke\n.', error);
@@ -94,10 +101,9 @@ function sendRandomJoke(channel, username, msg) {
 
 function blockPyramid(channel, username, msg) {
   let botMessage = `@${username} a chatter is sacced for every pyramid you fail monkaGun pepeGun @${Constants.sacList[Math.floor(Math.random()*Constants.sacList.length)]} :gun: oddoneVillain`;
-  if (shouldBlockPyramid(msg) && util.hasTokensRemaining(Constants.limiter)) {
-    Constants.limiter.tryRemoveTokens(1);
-    client.say(channel, botMessage);
-    console.log(`${username}'s pyramid was blocked`);
+  if (shouldBlockPyramid(msg) && util.hasTokensRemaining(Constants.pyramidBlockLimiter)) {
+    Constants.pyramidBlockLimiter.tryRemoveTokens(1);
+    sendCustomMessage(channel, botMessage);
     return;
   }
 }
@@ -159,13 +165,11 @@ function killAMeme(channel, username, msg) {
   if (msg.includes('staff') && msg.includes('meme') && util.hasTokensRemaining(Constants.killAMemeLimiter)) {
     Constants.killAMemeLimiter.tryRemoveTokens(1);
     let botMessage = `@${username} a meme dies for every staff you rat out monkaGun pepeGun \\(@${Constants.sacList[Math.floor(Math.random()*Constants.sacList.length)]})/ :gun: oddoneVillain`;
-    client.say(channel, botMessage);
-    console.log(botMessage);
+    sendCustomMessage(channel, botMessage);
   }
 }
 
-function welcome(channel, username, months) {
-  let botMessage = `oddoneWel back @${username} ! Here are (x${months}) oddonePat oddonePat AYAYA AYAYA`;
+function sendCustomMessage(channel, botMessage) {
   client.say(channel, botMessage);
   console.log(botMessage);
 }
@@ -183,7 +187,6 @@ function clearSacListOnInterval() {
 }
 
 function startTrivia(channel, msg) {
-  //TODO: do a check to make sure that this cant run until the answer to the previous one has been released
   let commandName = msg.trim();
 
   if (util.hasTokensRemaining(Constants.triviaLimiter) && commandName === Constants.triviaCommand && !Constants.triviaShouldCollectUserAnswers) {
@@ -232,8 +235,7 @@ function releaseCorrectAnswerCallback(channel, fullAnswer) {
   // empties list for next question
   Constants.triviaUserAnsweredCorrectList.length = 0;
 
-  client.say(channel, correctAnswerMessage);
-  console.log(correctAnswerMessage);
+  sendCustomMessage(channel, correctAnswerMessage);
 }
 
 function collectUserAnswersToTrivia(username, msg) {

@@ -14,7 +14,8 @@ const opts = {
   },
   channels: [
     'aquasniper1',
-    'stoner_minded'
+    'stoner_minded',
+    'ziggy'
   ]
 };
 
@@ -27,6 +28,7 @@ client.on('resub', onReSubHandler);
 client.on('subscription', onSubHandler);
 client.on("subgift", onSubGiftHandler);
 client.on("submysterygift", onSubMysteryGiftHandler);
+client.on("cheer", onCheerHandler);
 client.on('connected', onConnectedHandler);
 
 // Connect to Twitch:
@@ -36,35 +38,36 @@ client.connect();
 function onChatHandler(channel, userstate, msg, self) {
   if (self) { return; } // Ignore messages from the bot
 
-  tryUpdateSacList(userstate.username);
-
   sendRandomJoke(channel, userstate.username, msg);
   startTrivia(channel, msg);
   collectUserAnswersToTrivia(userstate.username, msg);
   blockPyramid(channel, userstate.username, msg);
-  //killAMeme(channel, userstate.username, msg.toLowerCase());
   //buildPyramid(channel, userstate.username, msg);
 }
 
 function onReSubHandler(channel, username, _months, msg, userstate, methods) {
   let months = (userstate && 'msg-param-cumulative-months' in userstate && userstate['msg-param-cumulative-months']) || 1; // ensure at least 1
-  let botMessage = `oddoneWel back @${username} ! Here are (x${months}) oddonePat oddonePat AYAYA AYAYA`;
+  let botMessage = `Welcome back @${username} ziggyjHype ! Thank you for subscribing for (x${months}) month(s) ziggyjLove`;
   sendCustomMessage(channel, botMessage);
 };
 
 function onSubHandler(channel, username, method, msg, userstate) {
-  let months = 1
-  let botMessage = `oddoneWel back @${username} ! Here are (x${months}) oddonePat oddonePat AYAYA AYAYA`;
+  let botMessage = `Thanks for subscribing @${username} ziggyjHype ! Welcome to the community ziggyjLove.`;
   sendCustomMessage(channel, botMessage);
 };
 
 function onSubGiftHandler(channel, username, _streakMonths, recipient, methods, userstate) {
-  let botMessage = `Thank you @${username} for gifting @${recipient} a sub!`;
+  let botMessage = `Thank you @${username} for gifting @${recipient} a sub! ziggyjHype ziggyjLove`;
   sendCustomMessage(channel, botMessage);
 }
 
 function onSubMysteryGiftHandler(channel, username, numbOfSubs, methods, userstate) {
-  let botMessage = `Thank you @${username} for gifting @${numbOfSubs} subs to the channel!`;
+  let botMessage = `Thank you @${username} for gifting ${numbOfSubs} subs to the channel! ziggyjHype ziggyjLove`;
+  sendCustomMessage(channel, botMessage);
+}
+
+function onCheerHandler(channel, userstate, message) {
+  let botMessage = `Thanks for cheering ${userstate.bits} bit(s) and supporting the channel @${userstate.username}! ziggyjHype ziggyjLove`
   sendCustomMessage(channel, botMessage);
 }
 
@@ -73,8 +76,7 @@ function onConnectedHandler(addr, port) {
   console.log(`* Connected to ${addr}:${port}`);
 }
 
-startRandomJokeOnInterval('tsm_theoddone');
-clearSacListOnInterval();
+startRandomJokeOnInterval('ziggy');
 
 // Randomly spit out a joke at an interval
 function startRandomJokeOnInterval(channel) {
@@ -106,7 +108,7 @@ function sendRandomJoke(channel, username, msg) {
 }
 
 function blockPyramid(channel, username, msg) {
-  let botMessage = `@${username} a chatter is sacced for every pyramid you fail monkaGun pepeGun @${Constants.sacList[Math.floor(Math.random()*Constants.sacList.length)]} :gun: oddoneVillain`;
+  let botMessage = `@${username} no`;
   if (shouldBlockPyramid(msg) && util.hasTokensRemaining(Constants.pyramidBlockLimiter)) {
     Constants.pyramidBlockLimiter.tryRemoveTokens(1);
     sendCustomMessage(channel, botMessage);
@@ -167,29 +169,9 @@ async function buildPyramid(channel, username, msg) {
   };
 }
 
-function killAMeme(channel, username, msg) {
-  if (msg.includes('staff') && msg.includes('meme') && util.hasTokensRemaining(Constants.killAMemeLimiter)) {
-    Constants.killAMemeLimiter.tryRemoveTokens(1);
-    let botMessage = `@${username} a meme dies for every staff you rat out monkaGun pepeGun \\(@${Constants.sacList[Math.floor(Math.random()*Constants.sacList.length)]})/ :gun: oddoneVillain`;
-    sendCustomMessage(channel, botMessage);
-  }
-}
-
 function sendCustomMessage(channel, botMessage) {
   client.say(channel, botMessage);
   console.log(botMessage);
-}
-
-function tryUpdateSacList(username) {
-  if (!Constants.sacList.includes(username)) {
-    Constants.sacList.push(username);
-  }
-}
-
-function clearSacListOnInterval() {
-  setInterval(function () {
-    Constants.sacList.length = 0;
-  }, 600000); // 10 min interval
 }
 
 function startTrivia(channel, msg) {
@@ -204,7 +186,7 @@ function startTrivia(channel, msg) {
         // release fullAnswer after x amount of time
         setTimeout(function () {
           releaseCorrectAnswerCallback(channel, triviaObject.fullAnswer);
-        }, 15000);
+        }, 20000);
       })
       .catch(function (error) {
         console.log('Error getting random trivia\n.', error);

@@ -6,10 +6,8 @@ const Constants = {
   jokesCommand: '!badjokes',
   triviaCommand: '!trivia',
   pyramidBlockLimiter: new RateLimiter(1, 2000),
-  killAMemeLimiter: new RateLimiter(1, 60000),
   jokesLimiter: new RateLimiter(1, 300000), // 5 min
   triviaLimiter: new RateLimiter(1, 120000), // 5 min
-  sacList: [],
   firstLayer: '',
   secondLayer: '',
   triviaUserAnsweredCorrectList: [],

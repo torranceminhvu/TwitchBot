@@ -39,7 +39,7 @@ function onChatHandler(channel, userstate, msg, self) {
   if (self) { return; } // Ignore messages from the bot
 
   sendRandomJoke(channel, userstate.username, msg);
-  startTrivia(channel, msg);
+  startTrivia(channel, userstate.username, msg);
   collectUserAnswersToTrivia(userstate.username, msg);
   blockPyramid(channel, userstate.username, msg);
   //buildPyramid(channel, userstate.username, msg);
@@ -174,10 +174,10 @@ function sendCustomMessage(channel, botMessage) {
   console.log(botMessage);
 }
 
-function startTrivia(channel, msg) {
+function startTrivia(channel, username, msg) {
   let commandName = msg.trim();
 
-  if (util.hasTokensRemaining(Constants.triviaLimiter) && commandName === Constants.triviaCommand && !Constants.triviaShouldCollectUserAnswers) {
+  if (util.hasTokensRemaining(Constants.triviaLimiter) && commandName === Constants.triviaCommand && Constants.allowedUser.includes(username) && !Constants.triviaShouldCollectUserAnswers) {
     Constants.triviaLimiter.tryRemoveTokens(1);
     trivias.getRandomTrivia()
       .then(async function (triviaObject) {
@@ -186,7 +186,7 @@ function startTrivia(channel, msg) {
         // release fullAnswer after x amount of time
         setTimeout(function () {
           releaseCorrectAnswerCallback(channel, triviaObject.fullAnswer);
-        }, 20000);
+        }, 15000);
       })
       .catch(function (error) {
         console.log('Error getting random trivia\n.', error);

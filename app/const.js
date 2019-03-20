@@ -7,7 +7,7 @@ const Constants = {
   triviaCommand: '!trivia',
   pyramidBlockLimiter: new RateLimiter(1, 2000),
   jokesLimiter: new RateLimiter(1, 300000), // 5 min
-  triviaLimiter: new RateLimiter(1, 120000), // 5 min
+  triviaLimiter: new RateLimiter(1, 20000), // 20 seconds
   firstLayer: '',
   secondLayer: '',
   triviaUserAnsweredCorrectList: [],

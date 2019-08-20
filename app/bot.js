@@ -14,8 +14,9 @@ const opts = {
   },
   channels: [
     'aquasniper1',
-    'stoner_minded',
-    'ziggy'
+    'xecese'
+    // 'stoner_minded'
+    //'ziggy'
   ]
 };
 
@@ -47,27 +48,27 @@ function onChatHandler(channel, userstate, msg, self) {
 
 function onReSubHandler(channel, username, _months, msg, userstate, methods) {
   let months = (userstate && 'msg-param-cumulative-months' in userstate && userstate['msg-param-cumulative-months']) || 1; // ensure at least 1
-  let botMessage = `Welcome back @${username} ziggyjHype ! Thank you for subscribing for (x${months}) month(s) ziggyjLove`;
+  let botMessage = `Welcome back @${username}! Thank you for subscribing for (x${months}) month(s)`;
   sendCustomMessage(channel, botMessage);
 };
 
 function onSubHandler(channel, username, method, msg, userstate) {
-  let botMessage = `Thanks for subscribing @${username} ziggyjHype ! Welcome to the community ziggyjLove.`;
+  let botMessage = `Thanks for subscribing @${username} ! Welcome to the community.`;
   sendCustomMessage(channel, botMessage);
 };
 
 function onSubGiftHandler(channel, username, _streakMonths, recipient, methods, userstate) {
-  let botMessage = `Thank you @${username} for gifting @${recipient} a sub! ziggyjHype ziggyjLove`;
+  let botMessage = `Thank you @${username} for gifting @${recipient} a sub!`;
   sendCustomMessage(channel, botMessage);
 }
 
 function onSubMysteryGiftHandler(channel, username, numbOfSubs, methods, userstate) {
-  let botMessage = `Thank you @${username} for gifting ${numbOfSubs} subs to the channel! ziggyjHype ziggyjLove`;
+  let botMessage = `Thank you @${username} for gifting ${numbOfSubs} subs to the channel!`;
   sendCustomMessage(channel, botMessage);
 }
 
 function onCheerHandler(channel, userstate, message) {
-  let botMessage = `Thanks for cheering ${userstate.bits} bit(s) and supporting the channel @${userstate.username}! ziggyjHype ziggyjLove`
+  let botMessage = `Thanks for cheering ${userstate.bits} bit(s) and supporting the channel @${userstate.username}! `
   sendCustomMessage(channel, botMessage);
 }
 
@@ -76,7 +77,7 @@ function onConnectedHandler(addr, port) {
   console.log(`* Connected to ${addr}:${port}`);
 }
 
-startRandomJokeOnInterval('ziggy');
+startRandomJokeOnInterval('xecese');
 
 // Randomly spit out a joke at an interval
 function startRandomJokeOnInterval(channel) {
@@ -89,7 +90,7 @@ function startRandomJokeOnInterval(channel) {
       .catch(function (error) {
         console.log('Error getting random joke\n.', error);
       });
-  }, 900000); // 15 min interval
+  }, 180000000); // 30 min interval
 }
 
 function sendRandomJoke(channel, username, msg) {
@@ -146,28 +147,28 @@ function shouldBlockPyramid(msg) {
   return false;
 }
 
-async function buildPyramid(channel, username, msg) {
-  let botMessages = [
-    'Oiktmot',
-    'Oiktmot Oiktmot',
-    'Oiktmot Oiktmot Oiktmot',
-    'Oiktmot Oiktmot',
-    'Oiktmot'
-  ];
+// async function buildPyramid(channel, username, msg) {
+//   let botMessages = [
+//     'Oiktmot',
+//     'Oiktmot Oiktmot',
+//     'Oiktmot Oiktmot Oiktmot',
+//     'Oiktmot Oiktmot',
+//     'Oiktmot'
+//   ];
 
-  const commandName = msg.trim();
+//   const commandName = msg.trim();
 
-  // If the command is known, let's execute it
-  if (commandName === Constants.chatCommand && Constants.allowedUser.includes(username)) {
-    for (let botMessage of botMessages) {
-      client.say(channel, `${botMessage}`);
-      await util.sleep(200);
-    };
-    console.log(`* Executed ${commandName} command`);
-  } else {
-    console.log(`* Unknown command ${commandName}`);
-  };
-}
+//   // If the command is known, let's execute it
+//   if (commandName === Constants.chatCommand && Constants.allowedUser.includes(username)) {
+//     for (let botMessage of botMessages) {
+//       client.say(channel, `${botMessage}`);
+//       await util.sleep(200);
+//     };
+//     console.log(`* Executed ${commandName} command`);
+//   } else {
+//     console.log(`* Unknown command ${commandName}`);
+//   };
+// }
 
 function sendCustomMessage(channel, botMessage) {
   client.say(channel, botMessage);
@@ -216,18 +217,18 @@ function releaseCorrectAnswerCallback(channel, fullAnswer) {
   Constants.triviaShouldCollectUserAnswers = false;
   Constants.triviaCorrectAnswerLetterChoice = '';
 
-  let atLeastOneCorrectMessage = `Congrats - ${Constants.triviaUserAnsweredCorrectList.join(' ')} stonerPotato . ${fullAnswer}`;
-  let noCorrectMessage = `Oof, nobody was correct stonerREE . ${Constants.triviaUserAnsweredCorrectList.join(' ')} ${fullAnswer}`;
+  let atLeastOneCorrectMessage = `Congrats - ${Constants.triviaUserAnsweredCorrectList.join(' ')} . ${fullAnswer}`;
+  let noCorrectMessage = `Oof, nobody was correct . ${Constants.triviaUserAnsweredCorrectList.join(' ')} ${fullAnswer}`;
   let correctAnswerMessage = Constants.triviaUserAnsweredCorrectList.length ? atLeastOneCorrectMessage : noCorrectMessage;
 
   // empties list for next question
-  Constants.triviaUserAnsweredCorrectList.length = 0;
+  //Constants.triviaUserAnsweredCorrectList.length = 0;
 
   sendCustomMessage(channel, correctAnswerMessage);
 }
 
 function collectUserAnswersToTrivia(username, msg) {
-  if (Constants.triviaShouldCollectUserAnswers) {
+  if (Constants.triviaShouldCollectUserAnswers && isOneLetter(msg)) {
     if (shouldAddUserAnsweredCorrectList(username, msg)) {
       Constants.triviaUserAnsweredCorrectList.push(`@${username}`);
     } else if (shouldRemoveUserAnsweredCorrectList(username, msg)) {
@@ -242,4 +243,8 @@ function shouldAddUserAnsweredCorrectList(username, msg) {
 
 function shouldRemoveUserAnsweredCorrectList(username, msg) {
   return Constants.triviaCorrectAnswerLetterChoice !== msg.toUpperCase() && Constants.triviaUserAnsweredCorrectList.includes(`@${username}`);
+}
+
+function isOneLetter(msg) {
+  return msg.length === 1
 }

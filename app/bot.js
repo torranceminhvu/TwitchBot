@@ -13,8 +13,7 @@ const opts = {
     password: process.env.PASSWORD
   },
   channels: [
-    'aquasniper1',
-    'xecese'
+    'aquasniper1'
     // 'stoner_minded'
     //'ziggy'
   ]
@@ -42,7 +41,7 @@ function onChatHandler(channel, userstate, msg, self) {
   sendRandomJoke(channel, userstate.username, msg);
   startTrivia(channel, userstate.username, msg);
   collectUserAnswersToTrivia(userstate.username, msg);
-  blockPyramid(channel, userstate.username, msg);
+  // blockPyramid(channel, userstate.username, msg);
   //buildPyramid(channel, userstate.username, msg);
 }
 
@@ -77,7 +76,7 @@ function onConnectedHandler(addr, port) {
   console.log(`* Connected to ${addr}:${port}`);
 }
 
-startRandomJokeOnInterval('xecese');
+// startRandomJokeOnInterval('xecese');
 
 // Randomly spit out a joke at an interval
 function startRandomJokeOnInterval(channel) {
@@ -108,44 +107,44 @@ function sendRandomJoke(channel, username, msg) {
   }
 }
 
-function blockPyramid(channel, username, msg) {
-  let botMessage = `@${username} no`;
-  if (shouldBlockPyramid(msg) && util.hasTokensRemaining(Constants.pyramidBlockLimiter)) {
-    Constants.pyramidBlockLimiter.tryRemoveTokens(1);
-    sendCustomMessage(channel, botMessage);
-    return;
-  }
-}
+// function blockPyramid(channel, username, msg) {
+//   let botMessage = `@${username} no`;
+//   if (shouldBlockPyramid(msg) && util.hasTokensRemaining(Constants.pyramidBlockLimiter)) {
+//     Constants.pyramidBlockLimiter.tryRemoveTokens(1);
+//     sendCustomMessage(channel, botMessage);
+//     return;
+//   }
+// }
 
-function setFirstLayer(msg) {
-  Constants.firstLayer = msg;
-  Constants.secondLayer = '';
-}
+// function setFirstLayer(msg) {
+//   Constants.firstLayer = msg;
+//   Constants.secondLayer = '';
+// }
 
-function setSecondLayer(msg) {
-  Constants.secondLayer = msg;
-}
+// function setSecondLayer(msg) {
+//   Constants.secondLayer = msg;
+// }
 
-function shouldBlockPyramid(msg) {
-  let firstEmoteToCheck = msg.split(' ')[0];
-  let numOfEmoteOccurences = msg.split(firstEmoteToCheck).length - 1;
+// function shouldBlockPyramid(msg) {
+//   let firstEmoteToCheck = msg.split(' ')[0];
+//   let numOfEmoteOccurences = msg.split(firstEmoteToCheck).length - 1;
 
-  if (numOfEmoteOccurences === 1) {
-    setFirstLayer(firstEmoteToCheck);
-  } else if (numOfEmoteOccurences === 2) {
-    setSecondLayer(firstEmoteToCheck);
-  } else if (numOfEmoteOccurences === 3) {
-    if (Constants.secondLayer === firstEmoteToCheck && Constants.firstLayer === firstEmoteToCheck) {
-      setFirstLayer('');
-      return true;
-    }
-    setFirstLayer('');
-  } else {
-    setFirstLayer('');
-  }
+//   if (numOfEmoteOccurences === 1) {
+//     setFirstLayer(firstEmoteToCheck);
+//   } else if (numOfEmoteOccurences === 2) {
+//     setSecondLayer(firstEmoteToCheck);
+//   } else if (numOfEmoteOccurences === 3) {
+//     if (Constants.secondLayer === firstEmoteToCheck && Constants.firstLayer === firstEmoteToCheck) {
+//       setFirstLayer('');
+//       return true;
+//     }
+//     setFirstLayer('');
+//   } else {
+//     setFirstLayer('');
+//   }
 
-  return false;
-}
+//   return false;
+// }
 
 // async function buildPyramid(channel, username, msg) {
 //   let botMessages = [
@@ -187,7 +186,7 @@ function startTrivia(channel, username, msg) {
         // release fullAnswer after x amount of time
         setTimeout(function () {
           releaseCorrectAnswerCallback(channel, triviaObject.fullAnswer);
-        }, 15000);
+        }, 30000);
       })
       .catch(function (error) {
         console.log('Error getting random trivia\n.', error);
@@ -222,7 +221,7 @@ function releaseCorrectAnswerCallback(channel, fullAnswer) {
   let correctAnswerMessage = Constants.triviaUserAnsweredCorrectList.length ? atLeastOneCorrectMessage : noCorrectMessage;
 
   // empties list for next question
-  //Constants.triviaUserAnsweredCorrectList.length = 0;
+  Constants.triviaUserAnsweredCorrectList.length = 0;
 
   sendCustomMessage(channel, correctAnswerMessage);
 }
